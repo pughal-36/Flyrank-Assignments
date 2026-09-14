@@ -1,5 +1,6 @@
 import { useId, useState } from 'react';
 import { Modal } from './components/Modal';
+import { Tabs } from './components/Tabs';
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -60,29 +61,24 @@ function App() {
       <section aria-labelledby="tabs-heading">
         <h2 id="tabs-heading">Tabs</h2>
 
-        <div role="tablist" aria-label="Example tabs">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={activeTab === tab.id}
-              aria-controls={`${tab.id}-panel`}
-              onClick={() => setActiveTab(tab.id)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        <div
-          id={`${activeTab}-panel`}
-          role="tabpanel"
-          tabIndex={0}
-          aria-labelledby={activeTab}
-        >
-          <p>{activePanel?.content}</p>
-        </div>
+        <Tabs
+          tabs={[
+            {
+              label: 'Overview',
+              content: 'This is the overview panel.',
+            },
+            {
+              label: 'Features',
+              content:
+                'These components support keyboard navigation and screen readers.',
+            },
+            {
+              label: 'About',
+              content:
+                'This example demonstrates accessible React components.',
+            },
+          ]}
+        />
       </section>
     </main>
   );
