@@ -1,0 +1,351 @@
+/* 
+  StatefulButton.css
+  All motion durations & easings defined strictly via CSS custom properties.
+  Transforms and opacities only — strictly GPU-accelerated properties.
+*/
+
+:root,
+.stateful-btn {
+  /* Motion tokens */
+  --duration-hover: 160ms;
+  --ease-hover: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --duration-press: 90ms;
+  --duration-label: 280ms;
+  --ease-label: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --duration-colour: 240ms;
+  --ease-colour: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-check: 420ms;
+  --ease-check: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-shake: 360ms;
+  --ease-shake: ease-out;
+
+  /* Theme tokens */
+  --btn-bg-idle: #2563eb;
+  --btn-bg-idle-hover: #1d4ed8;
+  --btn-bg-success: #059669;
+  --btn-bg-error: #dc2626;
+  --btn-text-color: #ffffff;
+  --btn-focus-ring: #60a5fa;
+  --btn-radius: 10px;
+  --btn-font-family: inherit;
+  --btn-font-size: 0.9375rem;
+  --btn-font-weight: 600;
+  --btn-padding-x: 1.5rem;
+  --btn-padding-y: 0.75rem;
+  --btn-min-height: 46px;
+  --btn-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+  --btn-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.18), 0 2px 4px rgba(0, 0, 0, 0.12);
+  --btn-shadow-active: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Button Container */
+.stateful-btn {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  margin: 0;
+  padding: var(--btn-padding-y) var(--btn-padding-x);
+  min-height: var(--btn-min-height);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--btn-radius);
+  font-family: var(--btn-font-family);
+  font-size: var(--btn-font-size);
+  font-weight: var(--btn-font-weight);
+  color: var(--btn-text-color);
+  background: transparent;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  overflow: hidden;
+  box-shadow: var(--btn-shadow);
+  text-decoration: none;
+  vertical-align: middle;
+  outline: none;
+  box-sizing: border-box;
+  
+  /* Pure CSS hover & press transforms */
+  transform: translateY(0) scale(1);
+  transition: transform var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover);
+  will-change: transform;
+}
+
+/* Hover State (pure CSS transform) */
+.stateful-btn:hover:not([aria-disabled="true"]) {
+  transform: translateY(-1px) scale(1.015);
+  box-shadow: var(--btn-shadow-hover);
+}
+
+/* Active / Press State (pure CSS transform) */
+.stateful-btn:active:not([aria-disabled="true"]) {
+  transform: translateY(1px) scale(0.985);
+  box-shadow: var(--btn-shadow-active);
+  transition: transform var(--duration-press) ease,
+              box-shadow var(--duration-press) ease;
+}
+
+/* Visible Focus-Visible Ring */
+.stateful-btn:focus-visible {
+  outline: 3px solid var(--btn-focus-ring);
+  outline-offset: 3px;
+}
+
+/* Disabled and Loading States */
+.stateful-btn[aria-disabled="true"] {
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.stateful-btn[data-state="loading"] {
+  cursor: wait;
+}
+
+.stateful-btn[data-state="idle"][aria-disabled="true"] {
+  opacity: 0.55;
+  filter: grayscale(20%);
+}
+
+/* ==========================================================================
+   Stacked Colour Layers (Cross-faded with Opacity ONLY)
+   ========================================================================== */
+.stateful-btn__bg-layer {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity var(--duration-colour) var(--ease-colour);
+  will-change: opacity;
+}
+
+/* Idle background layer */
+.stateful-btn__bg-layer--idle {
+  background: linear-gradient(135deg, var(--btn-bg-idle) 0%, #1d4ed8 100%);
+}
+
+/* Success background layer */
+.stateful-btn__bg-layer--success {
+  background: linear-gradient(135deg, var(--btn-bg-success) 0%, #047857 100%);
+}
+
+/* Error background layer */
+.stateful-btn__bg-layer--error {
+  background: linear-gradient(135deg, var(--btn-bg-error) 0%, #b91c1c 100%);
+}
+
+/* State-driven background opacity cross-fading */
+.stateful-btn[data-state="idle"] .stateful-btn__bg-layer--idle,
+.stateful-btn[data-state="loading"] .stateful-btn__bg-layer--idle {
+  opacity: 1;
+}
+
+.stateful-btn[data-state="success"] .stateful-btn__bg-layer--success {
+  opacity: 1;
+}
+
+.stateful-btn[data-state="error"] .stateful-btn__bg-layer--error {
+  opacity: 1;
+}
+
+/* Subtle gloss highlight on hover (opacity only) */
+.stateful-btn__highlight {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 100%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+  transition: opacity var(--duration-hover) var(--ease-hover);
+}
+
+.stateful-btn:hover:not([aria-disabled="true"]) .stateful-btn__highlight {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   Stacked Face Layers (Fixed width naturally sized for longest label)
+   All faces occupy the same grid area (1 / 1). 
+   This keeps button width constant without layout shift or width animation.
+   ========================================================================== */
+.stateful-btn__content {
+  position: relative;
+  z-index: 3;
+  display: inline-grid;
+  place-items: center;
+  width: 100%;
+}
+
+.stateful-btn__face {
+  grid-area: 1 / 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  width: 100%;
+  white-space: nowrap;
+  pointer-events: none;
+  
+  /* Initial hidden state: translated down & faded */
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity var(--duration-label) var(--ease-label),
+              transform var(--duration-label) var(--ease-label);
+  will-change: transform, opacity;
+}
+
+/* Active State Face Transitions */
+.stateful-btn[data-state="idle"] .stateful-btn__face--idle {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.stateful-btn[data-state="loading"] .stateful-btn__face--loading {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.stateful-btn[data-state="success"] .stateful-btn__face--success {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.stateful-btn[data-state="error"] .stateful-btn__face--error {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Exiting face adjustments when another state is active */
+.stateful-btn[data-state="loading"] .stateful-btn__face--idle,
+.stateful-btn[data-state="success"] .stateful-btn__face--loading,
+.stateful-btn[data-state="error"] .stateful-btn__face--loading {
+  transform: translateY(-8px);
+}
+
+/* ==========================================================================
+   Icons & Micro-animations
+   ========================================================================== */
+.stateful-btn__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.stateful-btn__icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Loading Spinner */
+.stateful-btn__spinner {
+  animation: btn-spin 0.75s linear infinite;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+@keyframes btn-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Success Checkmark Pop */
+.stateful-btn[data-state="success"] .stateful-btn__icon--check {
+  animation: check-pop var(--duration-check) var(--ease-check) forwards;
+}
+
+@keyframes check-pop {
+  0% {
+    transform: scale(0) rotate(-15deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.22) rotate(4deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* Retry Icon Subtle Pulse */
+.stateful-btn[data-state="error"] .stateful-btn__icon--retry {
+  animation: retry-nudge 0.3s ease-out;
+}
+
+@keyframes retry-nudge {
+  0% {
+    transform: rotate(-30deg) scale(0.85);
+  }
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+/* Screen Reader Accessible Live Region */
+.stateful-btn__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ==========================================================================
+   Accessibility: prefers-reduced-motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .stateful-btn,
+  .stateful-btn:hover,
+  .stateful-btn:active,
+  .stateful-btn__bg-layer,
+  .stateful-btn__face,
+  .stateful-btn__icon,
+  .stateful-btn__highlight {
+    transform: none !important;
+    transition-duration: 120ms !important;
+    animation-duration: 120ms !important;
+  }
+
+  .stateful-btn__face {
+    transform: none !important;
+  }
+
+  .stateful-btn__icon--check,
+  .stateful-btn__icon--retry {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  /* Replace spinner rotation with opacity pulse */
+  .stateful-btn__spinner {
+    animation: btn-pulse 1.2s ease-in-out infinite !important;
+    transform: none !important;
+  }
+}
+
+@keyframes btn-pulse {
+  0%, 100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
